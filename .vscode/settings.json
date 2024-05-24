@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "gd32l23x.h": "c",
+        "gd32l23x_eval.h": "c",
+        "stdio.h": "c"
+    }
+}
