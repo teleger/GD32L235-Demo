@@ -114,7 +114,7 @@ int16_t sht4x_read_serial(uint32_t* serial) {
     int16_t ret;
     uint16_t serial_words[SENSIRION_NUM_WORDS(*serial)];
     ret = sensirion_i2c_write(SHT4X_ADDRESS, &cmd, 1);
-    printf("read_serial,i2c_write,ret:%d\r\n",ret);
+    //printf("read_serial,i2c_write,ret:%d\r\n",ret);
     if (ret < 0)
         return IIC_WRITE_ERROR;
 

@@ -101,7 +101,7 @@ int8_t sensirion_i2c_read(uint8_t address, uint8_t* data, uint16_t count) {
     // IMPLEMENT
     uint8_t ret = 0xff;
     ret = sensirion_i2c_ReadByte_timeout(address,data,count);
-    printf("sensirion_i2c_read:%d\r\n",ret);
+    //printf("sensirion_i2c_read:%d\r\n",ret);
     if(ret != I2C_END)return STATUS_FAIL;
     return NO_ERROR;
 }
@@ -122,7 +122,7 @@ int8_t sensirion_i2c_write(uint8_t address, const uint8_t* data,
     // IMPLEMENT
     uint8_t ret = 0xff;
     ret = sensirion_i2c_WriteByte_timeout(address,data,count);
-    printf("sensirion_i2c_hal_write,address:0x%x,data:0x%x,count:%d \r\n",address,*data,count);
+    //printf("sensirion_i2c_hal_write,address:0x%x,data:0x%x,count:%d \r\n",address,*data,count);
     if(ret != I2C_END ){//i2c_WriteByte Fail
         printf("i2c_WriteByte Fail:%d\r\n",ret);
         return STATUS_FAIL;
@@ -398,13 +398,11 @@ uint8_t sensirion_i2c_WriteByte_timeout(uint8_t Addr,const uint8_t *data,uint16_
     uint16_t                timeout = 0;
     uint8_t                 end_flag = 0;
     i2c_transfer_byte_number_config(I2C0, 16);
-    i2c_master_addressing(I2C0, Addr<<1, I2C_MASTER_TRANSMIT);
-    printf("i2c_master_addressing:0x%x\r\n",Addr<<1);
+    //printf("i2c_master_addressing:0x%x\r\n",Addr<<1);
     while(!(end_flag)){
-        printf("IIC writeByte,state: %d\r\n",state);
+        //printf("IIC writeByte,state: %d\r\n",state);
         switch(state){
             case I2C_START:
-                I2C_STAT(I2C0) |= I2C_STAT_TBE;
                 while(i2c_flag_get(I2C0, I2C_FLAG_I2CBSY) && (timeout < I2C_TIME_OUT)){
                     timeout++;
                 }
@@ -416,7 +414,7 @@ uint8_t sensirion_i2c_WriteByte_timeout(uint8_t Addr,const uint8_t *data,uint16_
                     timeout = 0;
                     state = I2C_START;
                     end_flag = I2C_OK;
-                    printf("i2c bus is busy in  writeByte! %d\r\n",__LINE__);
+                    //printf("i2c bus is busy in  writeByte! %d\r\n",__LINE__);
                 }
                 break;
             case I2C_SEND_ADDRESS:
@@ -425,18 +423,15 @@ uint8_t sensirion_i2c_WriteByte_timeout(uint8_t Addr,const uint8_t *data,uint16_
                 }
                 if(timeout < I2C_TIME_OUT){
                     timeout = 0;
-                    i2c_data_transmit(I2C0, Addr<<1);
+                    i2c_master_addressing(I2C0, Addr<<1, I2C_MASTER_TRANSMIT);
                     state = I2C_TRANSMIT_DATA;
                 }else{
                     timeout = 0;
                     state = I2C_START;
-                    printf("i2c master sends 's internal address timeout in  writeByte!\r\n");
+                    //printf("i2c master sends 's internal address timeout in  writeByte!\r\n");
                 }
                 break;
             case I2C_TRANSMIT_DATA:
-                printf("i2c TI:%d! \r\n",i2c_flag_get(I2C0, I2C_FLAG_TI));
-                printf("i2c TBE:%d! \r\n",i2c_flag_get(I2C0, I2C_FLAG_TBE));
-                printf("i2c NCK:%d! \r\n",i2c_flag_get(I2C0, I2C_FLAG_NACK));
                 while((!i2c_flag_get(I2C0, I2C_FLAG_TBE)) && (timeout < I2C_TIME_OUT)){
                     timeout++;
                 }
@@ -447,9 +442,9 @@ uint8_t sensirion_i2c_WriteByte_timeout(uint8_t Addr,const uint8_t *data,uint16_
                 }else{
                     timeout = 0;
                     state = I2C_START;
-                    printf("i2c master sends data timeout in  writeByte! \r\n");
+                    //printf("i2c master sends data timeout in  writeByte! \r\n");
                 }
-                printf("i2c_step2 NCK:%d! \r\n",i2c_flag_get(I2C0, I2C_FLAG_NACK));
+                //printf("i2c_step2 NCK:%d! \r\n",i2c_flag_get(I2C0, I2C_FLAG_NACK));
                 break;
             case I2C_STOP:
                 /* send a stop condition to I2C bus */
@@ -469,7 +464,6 @@ uint8_t sensirion_i2c_WriteByte_timeout(uint8_t Addr,const uint8_t *data,uint16_
                     state   = I2C_START;
                     printf("i2c master sends stop signal timeout in  writeByte!\r\n");
                 }
-                printf("i2c_step3 NCK:%d! \r\n",i2c_flag_get(I2C0, I2C_FLAG_NACK));
                 break;
         default:
             state = I2C_START;
@@ -601,6 +595,12 @@ uint8_t sensirion_i2c_ReadByte_timeout(uint8_t Addr,uint8_t *data,uint16_t count
     uint8_t             end_flag = 0;
     //i2c_nack_disable(I2CX);
     i2c_transfer_byte_number_config(I2CX, count);
+#if 1
+    i2c_reload_disable(I2CX);
+    /* enable I2C automatic end mode in master mode */
+    i2c_automatic_end_enable(I2CX);
+#endif
+
     while(!(end_flag))
     {
         //printf("i2c bus is busy in read_state:%d,LINE: %d!\r\n",state,__LINE__);
@@ -621,6 +621,7 @@ uint8_t sensirion_i2c_ReadByte_timeout(uint8_t Addr,uint8_t *data,uint16_t count
                 //i2c_bus_reset();
                 timeout = 0;
                 state = I2C_START;
+                end_flag = I2C_OK;
                 printf("i2c bus is busy in read_%d!\r\n",__LINE__);
             }
             break;
@@ -629,35 +630,27 @@ uint8_t sensirion_i2c_ReadByte_timeout(uint8_t Addr,uint8_t *data,uint16_t count
                 timeout++;
             }
             if(timeout < I2C_TIME_OUT) {
-                i2c_data_transmit(I2CX, (Addr<<1)|(0x01));
+                i2c_master_addressing(I2CX, (Addr<<1), I2C_MASTER_RECEIVE);
                 state = I2C_TRANSMIT_DATA;
+            }else{
+                timeout = 0;
+                state = I2C_START;
+                end_flag = I2C_OK;
+                printf("i2c bus is I2C_SEND_ADDRESS timeout:%d!\r\n",__LINE__);
             }
             break;
         case I2C_TRANSMIT_DATA:
-            i2c_nack_disable(I2CX);
-            i2c_master_addressing(I2CX, Addr, I2C_MASTER_RECEIVE);
             while(count)
             {
-                if(count ==  1){
-                    i2c_nack_enable(I2CX);
-                }
                 if(i2c_flag_get(I2CX, I2C_FLAG_RBNE)){
                     *data = i2c_data_receive(I2CX);
                     data++;
                     count--;
-                    printf("i2c_data_receive ing:%d\r\n",*data);
                 }
             }
-            printf("***********************************************\r\n");
-            printf("i2c RBNE:%d\r\n",i2c_flag_get(I2CX, I2C_FLAG_RBNE));
-            printf("i2c NCK:%d! \r\n",i2c_flag_get(I2CX, I2C_FLAG_NACK));
-            printf("i2c TI:%d! \r\n",i2c_flag_get(I2CX, I2C_FLAG_TI));
-            printf("i2c TBE:%d! \r\n",i2c_flag_get(I2CX, I2C_FLAG_TBE));
-            printf("i2c ADDSEND:%d! \r\n",i2c_flag_get(I2CX, I2C_FLAG_ADDSEND));
-            printf("***********************************************\r\n");
             state = I2C_STOP;
             timeout = 0;
-            printf("i2c transmit complete %d \r\n",i2c_flag_get(I2CX, I2C_FLAG_RBNE));
+            //printf("i2c transmit complete %d \r\n",i2c_flag_get(I2CX, I2C_FLAG_RBNE));
             break;
         case I2C_STOP:
             /* wait until the stop condition is finished */
@@ -669,11 +662,11 @@ uint8_t sensirion_i2c_ReadByte_timeout(uint8_t Addr,uint8_t *data,uint16_t count
                 i2c_flag_clear(I2CX, I2C_FLAG_STPDET);
                 timeout = 0;
                 state = I2C_END;
-                end_flag = 1;
+                end_flag = I2C_OK;
             } else {
                 timeout = 0;
                 state = I2C_START;
-                printf("i2c master sends stop signal timeout in read!\n");
+                //printf("i2c master sends stop signal timeout in read!\n");
             }
             break;
         default:

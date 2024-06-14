@@ -148,10 +148,10 @@ void gpio_config(void)
     /* connect PB9 to I2C0_SDA */
     gpio_af_set(GPIOB, GPIO_AF_4, GPIO_PIN_9);
     /* configure GPIO pins of I2C0 */
-    gpio_mode_set(GPIOB, GPIO_MODE_AF, GPIO_PUPD_PULLUP, GPIO_PIN_8);
-    gpio_output_options_set(GPIOB, GPIO_OTYPE_OD, GPIO_OSPEED_50MHZ, GPIO_PIN_8);
-    gpio_mode_set(GPIOB, GPIO_MODE_AF, GPIO_PUPD_PULLUP, GPIO_PIN_9);
-    gpio_output_options_set(GPIOB, GPIO_OTYPE_OD, GPIO_OSPEED_50MHZ, GPIO_PIN_9);
+    gpio_mode_set(GPIOB, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO_PIN_8);
+    gpio_output_options_set(GPIOB, GPIO_OTYPE_OD, GPIO_OSPEED_2MHZ, GPIO_PIN_8);
+    gpio_mode_set(GPIOB, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO_PIN_9);
+    gpio_output_options_set(GPIOB, GPIO_OTYPE_OD, GPIO_OSPEED_2MHZ, GPIO_PIN_9);
 }
 
 /*!
@@ -165,6 +165,7 @@ void i2c_config(void)
     #ifdef GD32E230
     /* I2C clock configure */
     i2c_clock_config(I2C1, 100000, I2C_DTCY_2);
+
     /* I2C address configure */
     i2c_mode_addr_config(I2C1, I2C_I2CMODE_ENABLE, I2C_ADDFORMAT_7BITS,I2C0_OWN_ADDRESS7);
     /* enable I2C1 */
@@ -174,9 +175,10 @@ void i2c_config(void)
     #endif
 
     #ifdef GD32L235
+    rcu_i2c_clock_config(IDX_I2C0, RCU_I2CSRC_CKAPB1);
     /* configure I2C timing */
-    i2c_timing_config(I2C0, 0, 0x3, 0);
-    i2c_master_clock_config(I2C0, 0x13, 0x36);
+    i2c_timing_config(I2C0, 0x03, 0x3, 0);
+    i2c_master_clock_config(I2C0, 0x13, 0x32);
     i2c_address_config(I2C0, I2C0_OWN_ADDRESS7, I2C_ADDFORMAT_7BITS);
     /* configure slave address */
     //i2c_master_addressing(I2C0, 0x82, I2C_MASTER_TRANSMIT);
@@ -397,19 +399,22 @@ uint8_t  IS31_WriteOneByte_timeout(uint8_t WriteAddr,uint8_t DataToWrite){
                 }
                 break;
             case I2C_SEND_ADDRESS:
-                while((!i2c_flag_get(I2C0, I2C_FLAG_TBE)) && (timeout < I2C_TIME_OUT)){
-                    timeout++; 
-                }
-                if(timeout < I2C_TIME_OUT){
-                    i2c_master_addressing(I2C0, I2C0_SLAVE_ADDRESS7, I2C_MASTER_TRANSMIT);
-                    timeout = 0;
-                    state = I2C_TRANSMIT_DATA;
-                }else{
-                    timeout = 0;
-                    state = I2C_START;
-                    end_flag = I2C_OK;
-                    printf("i2c master clear address flag timeout in  WRITE!\r\n");
-                }
+                i2c_master_addressing(I2C0, I2C0_SLAVE_ADDRESS7, I2C_MASTER_TRANSMIT);
+                timeout = 0;
+                state = I2C_TRANSMIT_DATA;
+                // while((!i2c_flag_get(I2C0, I2C_FLAG_TBE)) && (timeout < I2C_TIME_OUT)){
+                //     timeout++; 
+                // }
+                // if(timeout < I2C_TIME_OUT){
+
+                //     timeout = 0;
+                //     state = I2C_TRANSMIT_DATA;
+                // }else{
+                //     timeout = 0;
+                //     state = I2C_START;
+                //     end_flag = I2C_OK;
+                //     printf("i2c master clear address flag timeout in  WRITE!\r\n");
+                // }
                 break;
             case I2C_TRANSMIT_DATA:
                 while((!i2c_flag_get(I2C0, I2C_FLAG_TBE)) && (timeout < I2C_TIME_OUT)){
@@ -577,7 +582,7 @@ void  IS31FL3236_Init(){
     m_IS31FL_status = IS31FL_OK;
     #if (DEBUG_MODE)
         PR_DEBUG("Init_IS31FL_status OK!\r\n");
-    #endif
+    #endif 
 }
 
 void setPwmupdate(){

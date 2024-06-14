@@ -122,7 +122,7 @@ void sensirion_i2c_attribute_config();
 uint8_t sensirion_i2c_WriteByte_timeout(uint8_t Addr,const uint8_t *data,uint16_t count);
 uint8_t sensirion_i2c_ReadByte_timeout(uint8_t Addr,uint8_t *data,uint16_t count);
 //end
-
+void sensirion_i2c_scan();
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

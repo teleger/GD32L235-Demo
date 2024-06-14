@@ -42,6 +42,9 @@
 ".\output\sht_git_version.o"
 ".\output\sht4x.o"
 ".\output\sht4x_example_usage.o"
+".\output\core_task.o"
+".\output\usebasetimer.o"
+".\output\gd25qxx.o"
 --library_type=microlib --nodebug --strict --scatter ".\output\Project.sct"
 --summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
 --info sizes --info totals --info unused --info veneers

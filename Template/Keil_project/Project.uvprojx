@@ -736,6 +736,31 @@
           </Files>
         </Group>
         <Group>
+          <GroupName>SoftWare</GroupName>
+          <Files>
+            <File>
+              <FileName>core_task.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\SoftWare\core_task.c</FilePath>
+            </File>
+            <File>
+              <FileName>useBaseTimer.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\SoftWare\useBaseTimer.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>HK25Qx</GroupName>
+          <Files>
+            <File>
+              <FileName>gd25qxx.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\HardWare\gd25qxx.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
           <GroupName>::CMSIS</GroupName>
         </Group>
       </Groups>
@@ -1010,7 +1035,7 @@
               </OCR_RVCT3>
               <OCR_RVCT4>
                 <Type>1</Type>
-                <StartAddress>0x8000000</StartAddress>
+                <StartAddress>0x8002c00</StartAddress>
                 <Size>0x20000</Size>
               </OCR_RVCT4>
               <OCR_RVCT5>
@@ -1074,7 +1099,7 @@
               <MiscControls></MiscControls>
               <Define>GD32L235</Define>
               <Undefine></Undefine>
-              <IncludePath>..\;..\..\Firmware\CMSIS\GD\GD32L23x\Include;..\..\Firmware\GD32L23x_standard_peripheral\Include;..\..\Utilities;.\inc;.\SHT4X-5.3</IncludePath>
+              <IncludePath>..\;..\..\Firmware\CMSIS\GD\GD32L23x\Include;..\..\Firmware\GD32L23x_standard_peripheral\Include;..\..\Utilities;.\inc;.\SHT4X-5.3;.\SoftWare</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -1415,6 +1440,31 @@
               <FileName>sht4x_example_usage.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\SHT4X-5.3\sht4x_example_usage.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>SoftWare</GroupName>
+          <Files>
+            <File>
+              <FileName>core_task.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\SoftWare\core_task.c</FilePath>
+            </File>
+            <File>
+              <FileName>useBaseTimer.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\SoftWare\useBaseTimer.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>HK25Qx</GroupName>
+          <Files>
+            <File>
+              <FileName>gd25qxx.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\HardWare\gd25qxx.c</FilePath>
             </File>
           </Files>
         </Group>

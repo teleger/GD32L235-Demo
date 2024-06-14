@@ -38,10 +38,13 @@ OF SUCH DAMAGE.
 #include "main.h"
 #include "gd32l23x_eval.h"
 #include "i2c_led.h"
+#include "core_task.h"
+#include "useBaseTime.h"
 #include "sht4x_usage_demo.h"
-#define ENABLE_FWDGT (0)
+#include "gd25qxx.h"
+#define ENABLE_FWDGT (1)
 #define USE_SHT4_SENSOR (1)
-#define USE_IIC_LED_SENSOR (0)
+#define USE_IIC_LED_SENSOR (1)
 #define ENABLE_UART4_PRINTF (1)
 #define LED_ZIGBEE_TEST_ENABLED (0)
 extern int Image$$ER_IROM1$$Base;
@@ -94,7 +97,7 @@ void control_crg1_zs3l_power(){
 
 int main(void)
 {
-    //nvic_vector_table_set(FLASH_BASE,(uint32_t)&Image$$ER_IROM1$$Base - FLASH_BASE);
+    nvic_vector_table_set(FLASH_BASE,(uint32_t)&Image$$ER_IROM1$$Base - FLASH_BASE);
     /* configure systick */
     systick_config();
     #if ENABLE_FWDGT
@@ -106,25 +109,28 @@ int main(void)
     #if LED_ZIGBEE_TEST_ENABLED
         led_zigbee_test();
     #endif
-
+    delay_1ms(500);
     com_usart_init();
 
     /* print out the clock frequency of system, AHB, APB1 and APB2 */
     //printf("CK_SYS is %d\r\n", rcu_clock_freq_get(CK_SYS));
     IIC2_All_Init();
-
+    useGeneralTimerProcess(11,5000);
     #if USE_SHT4_SENSOR
         delay_1ms(10);
         Init_SHT4X();
         // //初始化温湿度传感
-        // if(get_sht4x_status() != STATUS_OK){
-        //     i2c_deinit(I2C0);
-        //     IIC2_All_Init();
-        // }
+        if(get_sht4x_status() != STATUS_OK){
+            i2c_deinit(I2C0);
+            IIC2_All_Init();
+        }
     #endif
     #if USE_IIC_LED_SENSOR
         IS31FL3236_Init();
     #endif
+
+    spi_flash_init();
+    delay_1ms(500);
     #if ENABLE_FWDGT
         if(SUCCESS == fwdgt_config(625*3, FWDGT_PSC_DIV64)){
             fwdgt_write_disable();
@@ -132,15 +138,13 @@ int main(void)
             printf("fwdgt_enable\r\n");
         }
     #endif
-
+    printf("spi_flash_read_id:0x%x\r\n",spi_flash_read_id());
     while(1)
     {
-        delay_1ms(500);
-        delay_1ms(500);
         #if LED_ZIGBEE_TEST_ENABLED
         led_zigbee_run();
         #endif
-        printf("---test---\r\n");
+        measure_task_exe();
         #if ENABLE_FWDGT
             fwdgt_write_enable();
             fwdgt_counter_reload();

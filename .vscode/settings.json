@@ -2,6 +2,9 @@
     "files.associations": {
         "gd32l23x.h": "c",
         "gd32l23x_eval.h": "c",
-        "stdio.h": "c"
+        "stdio.h": "c",
+        "main.h": "c",
+        "sht4x_usage_demo.h": "c",
+        "gd32l23x_rcu.h": "c"
     }
 }
